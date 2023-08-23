@@ -1,42 +1,60 @@
-#include "shell.h"
+#include "main.h"
+
+
+
 
 /**
-* main - Entry point
-* @ac: arg count
-* @av: arg vector
-*
-* Return: On success 0, on error 1
-*/
-int main(int ac, char **av)
+ *sig_handler -  SIGINT handler
+ *@signo: 1 param
+ * Return: Always 0
+ **/
+void sig_handler(__attribute__((unused)) int signo)
 {
-info_t info[] = { INFO_INIT };
-int fd = 2;
-asm ("mov %1, %0\n\t"
-"add $3, %0"
-: "=r" (fd)
-: "r" (fd));
-if (ac == 2)
-{
-fd = open(av[1], O_RDONLY);
-if (fd == -1)
-{
-if (errno == EACCES)
-exit(126);
-if (errno == ENOENT)
-{
-_eputs(av[0]);
-_eputs(": 0: Can't open ");
-_eputs(av[1]);
-_eputchar('\n');
-_eputchar(BUF_FLUSH);
-exit(127);
+	write(STDOUT_FILENO, "\n$ ", _strlen("\n$ "));
+	fflush(stdout);
 }
-return (EXIT_FAILURE);
-}
-info->readfd = fd;
-}
-populate_env_list(info);
-read_history(info);
-hsh(info, av);
-return (EXIT_SUCCESS);
+/**
+ * main - Entry point
+ *@ac: 1 paramter
+ *@av: 2 parameter
+ * Return: Always 0
+ **/
+
+int main(__attribute__((unused))int ac, __attribute__((unused))char **av)
+{
+	size_t buffer_size = 0, i = 0;
+	int numberchar, status = 0, flag = 0;
+	char *line = NULL, **tab = NULL, *cmd = NULL, *tmp = NULL, **path = NULL;
+
+	signal(SIGINT, sig_handler);
+	while (1)
+	{
+		path = strtow(_getenv("PATH"), ':');
+		shell_prompt(&buffer_size, &i);
+		numberchar = getline(&line, &buffer_size, stdin);
+		if (get_line_tester(numberchar, status, line, &tmp, path) == 1)
+			continue;
+		tab = strtow(tmp, ' ');
+		if (tab)
+		{
+			builtin_command(line, tmp, path, tab, av, &flag, &status, i);
+			if (flag)
+			{
+				free_memory(tmp, cmd, line, tab);
+				free_path(path);
+				continue;
+			}
+			cmd = _find_command(tab[0], path);
+			child(&status, &flag, cmd, line, tab, path);
+			if (!flag)
+				write_not_found_error(av[0], i, cmd, &status);
+		}
+		if (tab && !_strncmp(tab[0], cmd, _strlen(cmd)) &&
+		access(cmd, X_OK) == 0)
+			free_memory(tmp, NULL, line, tab);
+		else
+			free_memory(tmp, cmd, line, tab);
+		free_path(path);
+	}
+	return (0);
 }
