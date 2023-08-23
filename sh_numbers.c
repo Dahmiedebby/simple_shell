@@ -69,7 +69,7 @@ int _atoi(char *s)
  * _countchars - counts the chars march in the string.
  * @str: pointer to string
  * @chars: string with  chars to be counted
- * 
+ *
  * Return: int of string or 0.
  */
 int _countchars(char *str, char *chars)

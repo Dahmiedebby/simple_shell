@@ -82,7 +82,7 @@ int _chcklogops(char *arrcmds[], int i, char arrops[])
 			res = arrcmds[i];
 			arrcmds[i][j] = '\0';
 			arrcmds[i] = _strdup(arrcmds[i]);
-			arrcmds[i + 1] =_strdup(res+j+2);
+			arrcmds[i + 1] = _strdup(res + j + 2);
 			i++;
 			arrops[i] = '|';
 			free(res);
