@@ -1,22 +1,20 @@
-#include "main.h"
+#include "shell.h"
 
 /**
-* _strlen -  Entrypoint
-* Description: The program's description _strlen
-* @s : 1 parameter
-* Return: Always 0 (Success)
-*/
-
-int _strlen(char *s)
+ * _strlen - the length of the string
+ * @str: pointer to the string
+ *
+ * Return: length of string
+ */
+int _strlen(char *str)
 {
-	int t = 0, len = 0;
+	int ln = 0;
 
-	if (!s)
+	if (str == NULL)
 		return (0);
-	while (*(s + t) != '\0')
-	{
-		len = len + 1;
-		t++;
-	}
-	return (len);
+
+	while (str[ln] != '\0')
+		ln++;
+
+	return (ln);
 }
